@@ -1,0 +1,36 @@
+services:
+  syslog-ng:
+    image: lscr.io/linuxserver/syslog-ng:latest
+    container_name: syslog-ng
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Warsaw
+      - LOG_TO_STDOUT= #optional
+    volumes:
+      - /home/user/syslog/config:/config
+      - /home/user/syslog/logs:/var/log #optional
+    ports:
+      - 192.168.100.6:6000:5514/udp
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    user: "1000:1000"
+    ports:
+      - 192.168.100.6:3100:3100
+    volumes:
+      - /home/user/loki/config:/etc/loki
+      - /home/user/loki/data:/loki
+    command: -config.file=/etc/loki/loki-config.yaml
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: promtail
+    volumes:
+      - /home/user/syslog/logs/syslog-ng:/var/log/syslog-ng:ro
+      - /home/user/promtail/config:/etc/promtail
+    command: -config.file=/etc/promtail/promtail.yaml
+    restart: unless-stopped
