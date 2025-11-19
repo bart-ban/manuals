@@ -1,0 +1,58 @@
+services:
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    user: "1000"
+    ports:
+      - 192.168.100.6:3000:3000
+    volumes:
+      - /home/user/grafana:/var/lib/grafana
+    environment:
+      - GF_INSTALL_PLUGINS=grafana-simple-json-datasource
+    restart: unless-stopped
+    networks:
+      - influxgrafanastack
+
+  influxdb:
+    container_name: influxdb
+    image: influxdb:latest
+    user: "1000"
+    ports:
+      - 192.168.100.6:8086:8086
+    volumes:
+      - /home/user/influx/db:/var/lib/influxdb2
+      - /home/user/influx/config:/etc/influxdb
+    restart: unless-stopped
+    networks:
+      - influxgrafanastack
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    user: "1000"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 192.168.100.6:9090:9090
+    restart: unless-stopped
+    volumes:
+      - /home/user/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - /home/user/prometheus/:/prometheus
+    networks:
+      - influxgrafanastack
+
+  uptime-kuma:
+    container_name: uptimekuma
+    image: louislam/uptime-kuma:1
+    volumes:
+      - /home/user/uptimekuma:/app/data
+    ports:
+      - 192.168.100.6:3001:3001
+    restart: unless-stopped
+    networks:
+      - influxgrafanastack
+
+networks:
+  influxgrafanastack:
+  web:
+   name: common-network
