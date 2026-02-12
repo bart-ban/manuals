@@ -1,0 +1,12 @@
+version: '3.3'
+services:
+     sftpgo:
+        image: drakkan/sftpgo:latest
+        restart: unless-stopped
+        container_name: sftpgo
+        ports:
+           - 8080:8080
+           - 2022:2022
+        volumes:
+           - /home/dockervm/Containers/sftpgo/data:/srv/sftpgo
+           - /home/dockervm/Containers/sftpgo/config:/var/lib/sftpgo
