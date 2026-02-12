@@ -1,0 +1,5 @@
+nano /etc/pve/lxc/<nnn>.conf
+
+Add
+lxc.cgroup.devices.allow: c 10:200 rwm
+lxc.mount.entry: /dev/net dev/net none bind,create=dir
