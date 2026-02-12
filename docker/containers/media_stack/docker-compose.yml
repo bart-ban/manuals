@@ -1,0 +1,58 @@
+services:
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: filebrowser
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Warsaw
+    ports:
+      - 8080:80
+    volumes:
+      - /mnt/4TB_USB_HDD:/srv/4TB
+      - /home/bieda/containers/filebrowser/config:/config
+      - /home/bieda/containers/filebrowser/db:/database
+    restart: unless-stopped
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Warsaw
+      - JELLYFIN_PublishedServerUrl=http://media-prod.local #optional
+    volumes:
+      - /home/bieda/containers/jellyfin/config:/config
+      - type: bind
+        source: /mnt/4TB_USB_HDD/Filmy
+        target: /Filmy
+    ports:
+      - 8096:8096
+      - 8920:8920 #optional
+      - 7359:7359/udp #optional
+      - 1900:1900/udp #optional
+    restart: unless-stopped
+
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/Warsaw
+      - TRANSMISSION_WEB_HOME= #optional
+      - USER= #optional
+      - PASS= #optional
+      - WHITELIST= #optional
+      - PEERPORT=51413
+      - HOST_WHITELIST= #optional
+    volumes:
+      - /home/bieda/containers/transmission/config:/config
+      - /mnt/4TB_USB_HDD/torrenty:/downloads
+    ports:
+      - 192.168.1.220:9091:9091
+      - 10.10.10.10:9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    restart: unless-stopped
